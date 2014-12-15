@@ -6,14 +6,16 @@
 
 %-behaviour(gen_mod).
 
--export([start/2, init/2, stop/1]).
+% gen_mod callbacks
+-export([start/2, stop/1]).
 
 %-include_lib("ejabberd.hrl").
 %-include("jlib.hrl").
 
 -export([
          mam_behaviour/5,
-         archive_message/9
+         archive_message/9,
+         lookup_message/14
         ]).
 
 -define(PROCNAME, mod_mam_riak).
