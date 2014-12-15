@@ -2,7 +2,7 @@
 %% @doc ejabberd module that ... listens to packets sent & received by users.
 %% @end
 
--module(mod_myejabberdmod).
+-module(mod_mam_riak).
 
 %-behaviour(gen_mod).
 
