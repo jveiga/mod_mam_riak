@@ -28,8 +28,6 @@
 %%%'   CALLBACKS
 
 start(Host, _Opts) ->
-  %Opt1 = gen_mod:get_opt(opt1, Opts, "default value"),
-  % capture packets sent by user
   ejabberd_hooks:add(mam_get_behaviour, Host, ?MODULE, mam_behaviour, 90),
   ejabberd_hooks:add(mam_archive_message, Host, ?MODULE, archive_message, 90),
   ejabberd_hooks:add(mam_lookup_messages, Host, ?MODULE, lookup_message, 90),
