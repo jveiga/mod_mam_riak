@@ -27,37 +27,24 @@
 %%%.
 %%%'   CALLBACKS
 
-start(Host, Opts) ->
+start(Host, _Opts) ->
   %Opt1 = gen_mod:get_opt(opt1, Opts, "default value"),
   % capture packets sent by user
   ejabberd_hooks:add(mam_get_behaviour, Host, ?MODULE, mam_behaviour, 90),
   ejabberd_hooks:add(mam_archive_message, Host, ?MODULE, archive_message, 90),
-  % capture packets received by user
-  %ejabberd_hooks:add(user_receive_packet, Host, ?MODULE, receive_packet, 90),
-  % register the module process for Host and spawn.
-  %register(gen_mod:get_module_proc(Host, ?PROCNAME),
-    %spawn(?MODULE, init, [Host, Opt1])),
-  gen_server:start_link(?PROCNAME, [Host, Opts], []).
+  ejabberd_hooks:add(mam_lookup_messages, Host, ?MODULE, lookup_message, 90),
+  ok.
 
 stop(Host) ->
   ejabberd_hooks:delete(mam_get_behaviour, Host, ?MODULE, mam_behaviour, 90),
   ejabberd_hooks:delete(mam_archive_message, Host, ?MODULE, archive_message, 90),
-  % remove hook for packets sent by user
-  %ejabberd_hooks:delete(user_send_packet, Host, ?MODULE, send_packet, 90),
-  %% remove hook for packets received by user
-  %ejabberd_hooks:delete(user_receive_packet, Host, ?MODULE, receive_packet, 90),
-  % send stop message to process
+  ejabberd_hooks:delete(mam_lookup_messages, Host, ?MODULE, lookup_message, 90),
   ok.
-
-init(Host, Opt1) ->
-  % do something here instead of nothing
-  ok.
-
 
 %%%.
 %%%'   PUBLIC API
 
-%% @spec send_packet(FromJID, ToJID, P) -> ??
+%% @spec
 %% @doc
 %% @end
 -spec mam_behaviour(Default :: roster | always | never,
@@ -68,6 +55,9 @@ init(Host, Opt1) ->
 mam_behaviour(_Default, _Host, _ArcID, _LocJID, _RemJID) ->
   {always, [], []}.
 
+%% @spec
+%% @doc
+%% @end
 %-spec archive_message(Result, Host, MessID, UserID, LocJID, RemJID, SrcJID, Dir, Packet) -> any() | {error, any()}.
 archive_message(Result, Host, MessID, UserID, LocJID, RemJID, SrcJID, Dir, Packet) ->
   try
@@ -75,13 +65,40 @@ archive_message(Result, Host, MessID, UserID, LocJID, RemJID, SrcJID, Dir, Packe
   catch _Type:Reason ->
         {error, Reason}
   end.
+
+%% @spec
+%% @doc
+%% @end
+lookup_message(Result, Host,
+                UserID, UserJID, RSM, Borders,
+                Start, End, Now, WithJID,
+                PageSize, LimitPassed, MaxResultLimit,
+                IsSimple) ->
+  try
+    unsafe_lookup_message(Result, Host,
+                UserID, UserJID, RSM, Borders,
+                Start, End, Now, WithJID,
+                PageSize, LimitPassed, MaxResultLimit,
+                IsSimple)
+  catch _Type:Reason ->
+          {error, Reason}
+  end.
 %%%.
 %%%'   PRIVATE FUNCTIONS
 
+%% @private
 unsafe_archive_message(Result, Host, MessID, UserID, LocJID, RemJID, SrcJID, Dir, Packet) ->
   ok.
 
 %% @private
+unsafe_lookup_message(Result, Host,
+                UserID, UserJID, RSM, Borders,
+                Start, End, Now, WithJID,
+                PageSize, LimitPassed, MaxResultLimit,
+                IsSimple) ->
+  ok.
+
+
 %%%.
 
 
