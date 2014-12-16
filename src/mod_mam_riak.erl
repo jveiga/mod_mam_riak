@@ -18,7 +18,14 @@
          lookup_message/14
         ]).
 
--define(PROCNAME, mod_mam_riak).
+-behaviour(gen_server).
+-export([
+	start/2,
+	start_link/2,
+	init/1
+	]).
+
+-define(PROCNAME, ejabberd__mam).
 
 -ifdef(TEST).
 -compile(export_all).
@@ -27,11 +34,29 @@
 %%%.
 %%%'   CALLBACKS
 
-start(Host, _Opts) ->
+start_link(Host, Opts) ->
+ %Proc = gen_mod:get_module_proc(Host, ?PROCNAME),
+ gen_server:start_link({local, ?MODULE}, ?MODULE, [Host, Opts], []).
+
+start(Host, Opts) ->
+   %Proc = gen_mod:get_module_proc(Host, ?PROCNAME),
+   
+   Child =
+     {?PROCNAME,
+	{?MODULE, start_link, [Host, Opts]},
+	permanent,
+	1000,
+	worker,
+	[?MODULE]},
+   supervisor:start_child(ejabberd_sup, Child).
+
+
+
+init([Host, _Opts]) ->
   ejabberd_hooks:add(mam_get_behaviour, Host, ?MODULE, mam_behaviour, 90),
   ejabberd_hooks:add(mam_archive_message, Host, ?MODULE, archive_message, 90),
   ejabberd_hooks:add(mam_lookup_messages, Host, ?MODULE, lookup_message, 90),
-  ok.
+  {ok, []}.
 
 stop(Host) ->
   ejabberd_hooks:delete(mam_get_behaviour, Host, ?MODULE, mam_behaviour, 90),
