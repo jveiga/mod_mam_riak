@@ -1,0 +1,7 @@
+{application, mod_mam_riak, [
+				{description, "Store and query chat messages from a MongoDB database"},
+				{vsn, git},
+				{registered, []},
+				{applications, [kernel, stdlib]},
+        {mod, {mod_mam_riak, []}}
+]}.
